@@ -1,3 +1,4 @@
+
 // synch.h
 //	Data structures for synchronizing threads.
 //
@@ -83,6 +84,9 @@ public:
 
 private:
     char* name;				// for debugging
+    bool held;               // Boolean to see if the lock is held
+    List *queue;            // threads waiting for lock to be free
+    Thread *lockOwner;      // The current owner of the lock
     // plus some other stuff you'll need to define
 };
 
@@ -137,6 +141,78 @@ public:
 
 private:
     char* name;
+    List *waitingList;
     // plus some other stuff you'll need to define
+};
+
+
+// The following class defines a "Mailbox".
+// The Mailbox class will be able to send and receive one word messages
+// using locks and condition variables.
+// 
+// Send() -- atomically waits until Receive is called on the same
+//           mailbox, and then copies the message into the 
+//           receive buffer. Once the copy is made, both can return.
+//
+// Receive() -- Similarly, Receive waits until Send is called, at which
+//           point the copy is made and both calls return
+class Mailbox{
+public:
+    Mailbox();
+    ~Mailbox();
+
+    void Send(int message);
+    void Receive(int * message);
+
+private:
+    //char* name;
+    Condition *send_msg;
+    Condition *receive_msg;
+    Lock *mailboxLock;
+    List *msg;
+    int senders;
+    int receivers;
+
+};
+
+
+
+// The following class defines Whiles.
+// It's three functions, Male(), Female(), and Matchmaker() will
+// represent each whale as a separate thread.
+//
+// Male() -- Waits until there is a waiting female and matchmaker
+// Female() -- Waits until there is a waiting male and matchmaker
+// Matchmaker() -- Waits until there is a waiting male and female
+//
+// Once all three are present, all three return out of the methods.
+// If there are multiple whales of a given kind, when there is a mating
+// it does not matter which one mates, just that only one of them mates.
+// Further, until whales of all three kinds arrive, the whales of the
+// other kinds must wait.
+class Whale{
+public:
+    Whale(char* debugName);
+    ~Whale();
+    char* getName() {
+        return (name);
+    }
+
+    void Male();
+    void Female();
+    void Matchmaker();
+
+private:
+    char* name;
+    Condition *cv_male;
+    Condition *cv_female;
+    Condition *cv_matchmaker;
+
+    Lock *whaleLock;
+
+    // Number of males, females, and matchmakers available.
+    int males;
+    int females;
+    int matchmakers;
 };
 #endif // SYNCH_H
