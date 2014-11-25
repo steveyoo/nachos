@@ -2,11 +2,10 @@
 #include "system.h"
 #include "bitmap.h"
 
-
-MemoryManager::memorymanager(int numPages){
+MemoryManager::MemoryManager(int numPages){
 	this->freePage = numPages;
 	this->memLock = new Lock("memLock");
-	this->bitmap = new bitMap(pageSize);
+	this->bitmap = new BitMap(PageSize);
 }
 
 MemoryManager::~MemoryManager() {
@@ -18,19 +17,22 @@ MemoryManager::~MemoryManager() {
 
 int MemoryManager::AllocPage(){
 	int i;
-	if(freePage >= 0 && bitmap->NumClear()){      // need to 
-		emLock->Acquire();
+	if(freePage >= 0 && bitmap->NumClear()){    
+		memLock->Acquire();
 		i = bitmap->Find();
 		freePage--;
 		memLock->Release();
+	} 
+	else {
+		return -1;
 	}
 	return i;
 }
 
-void MemoryManagervoid::FreePage(int physPageNum){
+void MemoryManager::FreePage(int physPageNum){
 	memLock->Acquire();
 	bitmap->Clear(physPageNum);
-	freePage++
+	freePage++;
 	memLock->Release();
 }
 

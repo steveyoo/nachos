@@ -1,3 +1,4 @@
+
 // progtest.cc
 //	Test routines for demonstrating that Nachos can load
 //	a user program and execute it.
@@ -7,12 +8,12 @@
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
-
 #include "copyright.h"
 #include "system.h"
 #include "console.h"
 #include "addrspace.h"
 #include "synch.h"
+#include "memorymanager.h"
 
 //----------------------------------------------------------------------
 // StartProcess
@@ -20,19 +21,30 @@
 //	memory, and jump to it.
 //----------------------------------------------------------------------
 
+//gobal MemoryManager
+MemoryManager * memoryManager;
+
 void
 StartProcess(char *filename)
-{
+{ 
+    //let memManager controll all the physciall memory
+    memoryManager = new MemoryManager(NumPhysPages);
+
     OpenFile *executable = fileSystem->Open(filename);
+     
     AddrSpace *space;
 
     if (executable == NULL) {
         printf("Unable to open file %s\n", filename);
         return;
     }
-    space = new AddrSpace(executable);
-    currentThread->space = space;
-
+    space = new AddrSpace();
+    // sucessfully allcoate memory for space
+    if(space->Initialize(executable)) {
+        currentThread->space = space;
+    } else {
+        ASSERT(false);
+    }
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values

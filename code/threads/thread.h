@@ -40,8 +40,7 @@
 
 #include "copyright.h"
 #include "utility.h"
-#include "sysdep.h"
-
+//#include "sysdep.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -79,6 +78,7 @@ extern void ThreadPrint(int arg);
 
 class Lock;
 class Condition;
+class AddrSpace;
 class Thread {
 private:
     // NOTE: DO NOT CHANGE the order of these first two members.

@@ -1,13 +1,12 @@
 #ifndef MEMORYMANAGER_H
 #define MEMORYMANAGER_H
+
 #include "bitmap.h"
-#include "system.h"
-#include "thread.h"
 
-
+class Thread;
 class Lock;
-class Thread;  // may need it later for mult-thread
 #include "synch.h"
+
 class MemoryManager {
 public:
 	MemoryManager(int numPages);
