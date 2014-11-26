@@ -48,16 +48,75 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
+// void
+// ExceptionHandler(ExceptionType which)
+// {
+//     int type = machine->ReadRegister(2);
+
+//     if ((which == SyscallException) && (type == SC_Halt)) {
+//         DEBUG('a', "Shutdown, initiated by user program.\n");
+//         interrupt->Halt();
+//     } else {
+//         printf("Unexpected user mode exception %d %d\n", which, type);
+//         ASSERT(FALSE);
+//     }
+// }
+
+
+
+
+
+
+
+
 void
 ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
 
-    if ((which == SyscallException) && (type == SC_Halt)) {
-        DEBUG('a', "Shutdown, initiated by user program.\n");
-        interrupt->Halt();
-    } else {
+    if ( which == SyscallException ) {
+    	switch (type) {
+    		case SC_Halt:
+    			DEBUG('a', "Shutdown, initiated by user program.\n");
+        		interrupt->Halt();
+        		break;
+        	case SC_Exit:
+        		 //exit();  TO DO
+        		break;	
+        	case SC_Exec:
+        		// exec();  TODO
+        		break;
+        	case SC_Join:
+        		// extra credit.
+        		// to handle Join
+        		break;
+        	case SC_Create:
+        		// TO DO
+        		break;
+	     	case SC_Open:
+	     		// TO DO
+	     		break;
+			case SC_Read:	
+				// TO DO
+				break;	
+			case SC_Write:
+				// TO DO
+				break;
+			case SC_Close:
+				// TO DO
+				break;
+			case SC_Fork:
+				// TO DO
+				break;
+				// TO DO
+			case SC_Yield:
+				break;
+    	}	// end of switch casle	
+    }	// end of if statement
+    else {    // other system calls, handdling late.
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
 }
+
+

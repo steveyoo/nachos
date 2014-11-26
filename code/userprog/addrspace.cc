@@ -100,13 +100,10 @@ int AddrSpace::Initialize(OpenFile *executable){
     for (i = 0; i < numPages; i++) {
         pageTable[i].virtualPage = i;               // for now, virtual page # = phys page #
         pageTable[i].physicalPage = memoryManager->AllocPage();// assign a free physical page
-       // zero out the entire address space, to zero the unitialized data segment
+        // zero out the entire address space, to zero the unitialized data segment
         // and the stack segment  
-        if(pageTable[i].physicalPage != -1) {
-            bzero(&machine->mainMemory[pageTable[i].physicalPage * PageSize], PageSize);
-        } else {
-            ASSERT(FALSE);
-        }
+        // zero the allocted page
+        bzero(&machine->mainMemory[pageTable[i].physicalPage * PageSize], PageSize);
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -124,8 +121,13 @@ int AddrSpace::Initialize(OpenFile *executable){
 // then, copy code into memory
     while(codeSize >= (PageSize - offset)) {
         pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
-        // .virtualAddr, noffH.coDEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
-        //       noffH.codede.size);
+        // printf("code.........................................: \n");
+        // printf("code size: 0x%x\n", codeSize);
+        // printf("virtual addr: 0x%x\n", codeVirtualAddr);
+        // printf("in file addr: 0x%x\n", codeInFileAddrt);
+        // printf("offset: 0x%x\n", offset);
+        // printf("pysical page number: 0x%x\n", pysicalPageNum);
+        // printf("page size: 0x%x\n", PageSize);
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            PageSize - offset, codeInFileAddrt);
         // update conuters      
@@ -140,6 +142,13 @@ int AddrSpace::Initialize(OpenFile *executable){
         pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            codeSize, codeInFileAddrt);
+        // printf("code.........................................: \n");
+        // printf("code size: 0x%x\n", codeSize);
+        // printf("virtual addr: 0x%x\n", codeVirtualAddr);
+        // printf("in file addr: 0x%x\n", codeInFileAddrt);
+        // printf("offset: 0x%x\n", offset);
+        // printf("pysical page number: 0x%x\n", pysicalPageNum);
+        // printf("page size: 0x%x\n", PageSize);
     }
    
     // copy data segments into memory
@@ -150,8 +159,13 @@ int AddrSpace::Initialize(OpenFile *executable){
     
     while(codeSize >= (PageSize - offset)) {
         pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
-        // .virtualAddr, noffH.coDEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
-        //       noffH.codede.size);
+        // printf("data.........................................: \n");
+        // printf("data size: 0x%x\n", codeSize);
+        // printf("virtual addr: 0x%x\n", codeVirtualAddr);
+        // printf("in file addr: 0x%x\n", codeInFileAddrt);
+        // printf("offset: 0x%x\n", offset);
+        // printf("pysical page number: 0x%x\n", pysicalPageNum);
+        // printf("page size: 0x%x\n", PageSize);
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            PageSize - offset, codeInFileAddrt);
         // update conuters      
@@ -166,6 +180,13 @@ int AddrSpace::Initialize(OpenFile *executable){
         pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            codeSize, codeInFileAddrt);
+        // printf("data.........................................: \n");
+        // printf("data size: 0x%x\n", codeSize);
+        // printf("virtual addr: 0x%x\n", codeVirtualAddr);
+        // printf("in file addr: 0x%x\n", codeInFileAddrt);
+        // printf("offset: 0x%x\n", offset);
+        // printf("pysical page number: 0x%x\n", pysicalPageNum);
+        // printf("page size: 0x%x\n", PageSize);
     }
     return 1;
 }
