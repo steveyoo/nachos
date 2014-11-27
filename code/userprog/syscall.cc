@@ -24,7 +24,7 @@ intiUserProcess(int argv) {
     machine->Run();
 }
 
-void userEixt(){
+void userExit(){
 	int spid = currentThread->spaceID;
 	if(spid != 1){
 		delete currentThread->space;
