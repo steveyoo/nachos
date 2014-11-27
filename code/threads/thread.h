@@ -173,8 +173,9 @@ private:
 public:
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
-
-    AddrSpace *space;			// User code this thread is running.
+    AddrSpace *space;
+    int spaceID;			    // keep track of the thead is runing or not.
+                                // User code this thread is running.
 #endif
 };
 

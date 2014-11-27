@@ -14,7 +14,7 @@
 
 int
 main()
-{
+{	int word = 8;
     Halt();
     /* not reached */
 }

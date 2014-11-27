@@ -98,6 +98,7 @@ Machine::ReadMem(int addr, int size, int *value)
     DEBUG('a', "Reading VA 0x%x, size %d\n", addr, size);
 
     exception = Translate(addr, &physicalAddress, size, FALSE);
+   // printf ("add: is  0x%x,  size %d, ExceptionType: %d, physicalAddress %x\n", addr, size,exception,physicalAddress);
     if (exception != NoException) {
         machine->RaiseException(exception, addr);
         return FALSE;

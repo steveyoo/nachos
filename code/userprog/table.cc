@@ -13,6 +13,9 @@ Table::Table(int size){
 }
 
 Table::~Table(){
+	for(int i = 0; i < tableSize; i++) {
+		delete (int*)table[i];
+	}
 	if (tableLock) 
 		delete tableLock;
 	if(table)
@@ -35,6 +38,7 @@ int Table::Alloc(void *object) {
 			break;
 		}
 	}
+	tableSize--;
 	tableLock->Release();
 	return id;
 }
@@ -53,8 +57,10 @@ void* Table::Get(int index) {
 /* Free the table slot at index. */
 void Table::Release(int index) {
 	tableLock->Acquire();
-	if(index > 0 && index < tableSize)
+	if(index > 0 && index < tableSize) {
 		table[(index - 1)];
+		tableSize++;
+	}
 	else  // leave like this now, may need ASSERT(FALSE)
 		printf("index bigger or less than the table");
 	tableLock->Release();

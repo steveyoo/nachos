@@ -1,3 +1,4 @@
+
 // addrspace.cc
 //	Routines to manage address spaces (executing user programs).
 //
@@ -28,7 +29,7 @@
 //	object file header, in case the file was generated on a little
 //	endian machine, and we're now running on a big endian machine.
 //----------------------------------------------------------------------
-extern MemoryManager *memoryManager;
+//extern MemoryManager *memoryManager;
 
 static void
 SwapHeader (NoffHeader *noffH)
@@ -81,15 +82,15 @@ int AddrSpace::Initialize(OpenFile *executable){
            + UserStackSize;	// we need to increase the size
     // to leave room for the stack
     numPages = divRoundUp(size, PageSize);
+    size = numPages * PageSize;
    
-    if (numPages > NumPhysPages) {
+    if (numPages > NumPhysPages ||  numPages > (unsigned int)memoryManager->getFreePageNum()) {
         printf(" file is too big");
         ASSERT(FALSE);
     }
-
+    printf("********************** NUM PHYS PAGES: %d, PAGE SIZE: 0x%x\n", NumPhysPages, PageSize);
    // create a pageTable (amount of page entires) for the current process 
     pageTable = new TranslationEntry[numPages];
-    size = numPages * PageSize;
 
     ASSERT(numPages <= NumPhysPages)		// check we're not trying
     // to run anything too big --
@@ -103,6 +104,7 @@ int AddrSpace::Initialize(OpenFile *executable){
         // zero out the entire address space, to zero the unitialized data segment
         // and the stack segment  
         // zero the allocted page
+        ASSERT(pageTable[i].physicalPage >= 0);
         bzero(&machine->mainMemory[pageTable[i].physicalPage * PageSize], PageSize);
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
@@ -120,26 +122,26 @@ int AddrSpace::Initialize(OpenFile *executable){
 
 // then, copy code into memory
     while(codeSize >= (PageSize - offset)) {
-        pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
+        pysicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
         // printf("code.........................................: \n");
         // printf("code size: 0x%x\n", codeSize);
         // printf("virtual addr: 0x%x\n", codeVirtualAddr);
         // printf("in file addr: 0x%x\n", codeInFileAddrt);
         // printf("offset: 0x%x\n", offset);
-        // printf("pysical page number: 0x%x\n", pysicalPageNum);
+        // printf("page number: 0x%x\n", pysicalPageNum);
         // printf("page size: 0x%x\n", PageSize);
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            PageSize - offset, codeInFileAddrt);
         // update conuters      
-        codeSize = codeSize - PageSize - offset;
+        codeSize = codeSize - (PageSize - offset);
         codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
         codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
-        offset = codeVirtualAddr & (PageSize - 1); 
+        offset = codeVirtualAddr & (PageSize - 1);
     }
     // corner case, last part of the code segment where 
     // code size may be less then the pageSize - offset
     if(codeSize > 0) {
-        pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
+        pysicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            codeSize, codeInFileAddrt);
         // printf("code.........................................: \n");
@@ -150,7 +152,8 @@ int AddrSpace::Initialize(OpenFile *executable){
         // printf("pysical page number: 0x%x\n", pysicalPageNum);
         // printf("page size: 0x%x\n", PageSize);
     }
-   
+   // printf(">>>>>>>>>>>>>>>>>>>>>end of code <<<<<<<<<<<<<<<<<<<\n");
+
     // copy data segments into memory
     codeSize = noffH.initData.size;
     codeVirtualAddr = noffH.initData.virtualAddr;
@@ -158,7 +161,7 @@ int AddrSpace::Initialize(OpenFile *executable){
     offset = codeVirtualAddr & (PageSize - 1); 
     
     while(codeSize >= (PageSize - offset)) {
-        pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
+        pysicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
         // printf("data.........................................: \n");
         // printf("data size: 0x%x\n", codeSize);
         // printf("virtual addr: 0x%x\n", codeVirtualAddr);
@@ -169,7 +172,7 @@ int AddrSpace::Initialize(OpenFile *executable){
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            PageSize - offset, codeInFileAddrt);
         // update conuters      
-        codeSize = codeSize - PageSize - offset;
+        codeSize = codeSize - (PageSize - offset);
         codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
         codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
         offset = codeVirtualAddr & (PageSize - 1); 
@@ -177,7 +180,7 @@ int AddrSpace::Initialize(OpenFile *executable){
     // corner case, last part of the initcode segment where 
     // code size may be less then the pageSize - offset
     if(codeSize > 0) {
-        pysicalPageNum = pageTable[codeSize/PageSize].physicalPage;
+        pysicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
         executable->ReadAt(&(machine->mainMemory[pysicalPageNum*PageSize + offset]),
                            codeSize, codeInFileAddrt);
         // printf("data.........................................: \n");
@@ -188,6 +191,8 @@ int AddrSpace::Initialize(OpenFile *executable){
         // printf("pysical page number: 0x%x\n", pysicalPageNum);
         // printf("page size: 0x%x\n", PageSize);
     }
+
+    //printf(">>>>>>>>>>>>>>>>>>>>>end of data <<<<<<<<<<<<<<<<<<<\n");
     return 1;
 }
 

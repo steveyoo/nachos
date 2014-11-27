@@ -81,10 +81,12 @@ ExceptionHandler(ExceptionType which)
         		interrupt->Halt();
         		break;
         	case SC_Exit:
-        		 //exit();  TO DO
+                // TODO: should be moved to sysexit.cc like Exec 
+    
+        		userEixt();
         		break;	
         	case SC_Exec:
-        		// exec();  TODO
+        		userExec();
         		break;
         	case SC_Join:
         		// extra credit.

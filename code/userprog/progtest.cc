@@ -14,6 +14,7 @@
 #include "addrspace.h"
 #include "synch.h"
 #include "memorymanager.h"
+#include "table.h"
 
 //----------------------------------------------------------------------
 // StartProcess
@@ -21,17 +22,19 @@
 //	memory, and jump to it.
 //----------------------------------------------------------------------
 
-//gobal MemoryManager
+//gobal MemoryManagers
 MemoryManager * memoryManager;
+Table *tableManager;
 
 void
 StartProcess(char *filename)
 { 
+
     //let memManager controll all the physciall memory
     memoryManager = new MemoryManager(NumPhysPages);
+    tableManager = new Table(256);
 
     OpenFile *executable = fileSystem->Open(filename);
-     
     AddrSpace *space;
 
     if (executable == NULL) {
@@ -40,18 +43,25 @@ StartProcess(char *filename)
     }
     space = new AddrSpace();
     // sucessfully allcoate memory for space
+
     if(space->Initialize(executable)) {
         currentThread->space = space;
     } else {
         ASSERT(false);
     }
-    delete executable;			// close file
+    delete executable;		// close file
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
-
+    
+    printf("all good \n");
+    int spid = tableManager->Alloc((void*)currentThread);
+    ASSERT(spid >= 1);
+    currentThread->spaceID = spid;
+    printf("begin to run machine \n");
     machine->Run();			// jump to the user progam
-    ASSERT(FALSE);			// machine->Run never returns;
+    ASSERT(FALSE);		
+	// machine->Run never returns;
     // the address space exits
     // by doing the syscall "exit"
 }

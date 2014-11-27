@@ -17,7 +17,7 @@ MemoryManager::~MemoryManager() {
 
 int MemoryManager::AllocPage(){
 	int i;
-	if(freePage >= 0 && bitmap->NumClear()){    
+	if(freePage > 0 && bitmap->NumClear()){    
 		memLock->Acquire();
 		i = bitmap->Find();
 		freePage--;
@@ -31,8 +31,10 @@ int MemoryManager::AllocPage(){
 
 void MemoryManager::FreePage(int physPageNum){
 	memLock->Acquire();
+	if (bitmap->Test(physPageNum)) {
+		freePage++;
+	}
 	bitmap->Clear(physPageNum);
-	freePage++;
 	memLock->Release();
 }
 

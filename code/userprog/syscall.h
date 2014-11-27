@@ -14,6 +14,8 @@
 #define SYSCALLS_H
 
 #include "copyright.h"
+// #include "system.h"
+// #include "table.h"
 
 /* system call codes -- used by the stubs to tell the kernel which system call
  * is being asked for
@@ -33,7 +35,7 @@
 #ifndef IN_ASM
 
 /* The system call interface.  These are the operations the Nachos
- * kernel needs to support, to be able to run user programs.
+ * kernel needs to support, to- be able to run user programs.
  *
  * Each of these is invoked by a user program by simply calling the
  * procedure; an assembly language stub stuffs the system call code
@@ -42,9 +44,31 @@
  * from the system call entry point in exception.cc.
  */
 
+//////////////////////////////////////////////////////////////////////////
+//	functions to implemnet exec() eixt()
+ ///////////////////////////////////////////////////////////////////////
+
+typedef int SpaceId;
+
+// Exec for part 2.  it takes no input and return a space id 
+SpaceId userExec();
+
+void userEixt();
+
+int getPathLen(char *name);
+
+void getPath(char *path , int name, int nameLen);
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+ //////////////////////////////////////////////////////////////////////
+
+
+
 /* Stop Nachos, and print out performance stats */
 void Halt();
-
 
 /* Address space control operations: Exit, Exec, and Join */
 
@@ -52,18 +76,18 @@ void Halt();
 void Exit(int status);
 
 /* A unique identifier for an executing user program (address space) */
-typedef int SpaceId;
+
 
 /* Run the executable, stored in the Nachos file "name", and return the
  * address space identifier
  */
 SpaceId Exec(char *name, int argc, char **argv, int opt);
 
+
 /* Only return once the the user program "id" has finished.
  * Return the exit status.
  */
 int Join(SpaceId id);
-
 
 /* File system operations: Create, Open, Read, Write, Close
  * These functions are patterned after UNIX -- files represent
@@ -75,7 +99,7 @@ int Join(SpaceId id);
  */
 
 /* A unique identifier for an open Nachos file. */
-typedef int OpenFileId;
+
 
 /* when an address space starts up, it has two open files, representing
  * keyboard input and display output (in UNIX terms, stdin and stdout).
@@ -86,6 +110,7 @@ typedef int OpenFileId;
 #define ConsoleInput	0
 #define ConsoleOutput	1
 
+typedef int OpenFileId;
 /* Create a Nachos file, with "name" */
 void Create(char *name);
 
@@ -108,14 +133,11 @@ int Read(char *buffer, int size, OpenFileId id);
 /* Close the file, we're done reading and writing to it. */
 void Close(OpenFileId id);
 
-
-
 /* User-level thread operations: Fork and Yield.  To allow multiple
  * threads to run within a user program.
  */
 
 /* Fork a thread to run a procedure ("func") in the *same* address space
- * as the current thread.
  */
 void Fork(void (*func)());
 
