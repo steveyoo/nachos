@@ -21,6 +21,10 @@ public:
 	void Release(int index);
 
 	int getTableSize();
+
+	void ReleaseAll();
+
+	bool AnyExist();
 private:
 	int tableSize;
 	void **table;

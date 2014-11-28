@@ -17,8 +17,7 @@
 // which further provides you the information on how the new process's memory should look like
 
 
-void
-intiUserProcess(int argv) {
+void intiUserProcess(int argv) {
     currentThread->space->InitRegisters();
     currentThread->space->RestoreState();
     machine->Run();
@@ -32,16 +31,17 @@ void userExit(){
 		currentThread->Finish();
 	} else 
 		{
-		// what to do if it is a parent thread?	
+		ASSERT(currentThread->spaceID== 1);
+        while(1 != tableManager->AnyExist()) {
+               currentThread->Yield();
+        } 
 	}
-
 	 printf("exiting the process \n");
      interrupt->Halt();
-
 }
 
  
-SpaceId userExec(){
+int userExec(){
 	//SpaceId Exec(char *name, int argc, char **argv, int opt);
 	int name;
 	// int  argc, argv, opt;
@@ -50,27 +50,16 @@ SpaceId userExec(){
     OpenFile *executable;
     AddrSpace *space;
     Thread *thread;
-    SpaceId spid = 0;
-    
+    SpaceId spid = 0; 
     //read the argument out from the Registers.
     name = machine->ReadRegister(4);
-    // argc = machine->ReadRegister(5);
-    // argv = machine->ReadRegister(6);
-    // opt = machine->ReadRegister(7);
-    // all data we have from the Registers are int
-    // have to do coversion first
-    // determine which type of the data is
-    // int = 4 bit
-    // int[] = 4 bit * len
-    // char = 1 bit 
-    // char[] = 1 bit * len
-    // char*  = ???
+
     pathLen = getPathLen((char*)name);
     printf("path length is equal to %d\n",pathLen);
     if(pathLen <= 0) { 
     	printf(" no value path length find in userExec  line 43\n");
     	return 0;
-    	// OR ASSERT(FALSE);
+    	//ASSERT(FALSE);
     }
 
     path = new char[pathLen];
@@ -80,37 +69,40 @@ SpaceId userExec(){
     if (executable == NULL) {
     	printf("no such file in user_Exec line 53 \n");
     	return 0;
+    	//ASSERT(FALSE);
     }
 
-    thread = new Thread("userExec Thread");
+    thread = new Thread("userExec Thread\n");
  	space = new AddrSpace();
  	if(space->Initialize(executable)) {
- 		printf("create sapce for a new thread; line 59 in userExec");
+ 		printf("Create sapce for a new thread; line 59 in userExec\n");
  		thread->space = space;
  	} else{
- 		printf("does not create sapce for a new thread..line 61 in userExec");
+ 		printf("Does not create sapce for a new thread..line 61 in userExec\n");
  		return 0;
+ 		//ASSERT(FALSE);
  	}
  	delete executable;
 
  	spid = tableManager->Alloc((void*)thread);
- 	printf("pid is --------------- :%d\n ", spid);
+ 	printf("pid is: %d name is: %s\n ", spid, thread->getName());
  	if (spid<=0)
- 		return spid;
- 	machine->WriteRegister(2, spid);
+ 		return 0;
+ 		//ASSERT(false);
  	thread->spaceID = spid;
+ 	machine->WriteRegister(2, spid);
  	thread->Fork(intiUserProcess, 0);
  	currentThread->Yield();
  	//uptate the Register.
  	int pcreg = machine->ReadRegister(PCReg);
-
  	machine->WriteRegister(PrevPCReg, pcreg);
     machine->WriteRegister(PCReg, pcreg + 4);
     machine->WriteRegister(NextPCReg, pcreg + 8); 
+    printf ("go to next excution\n");
   // hint from piazza.
   // First, PC should be always multiples of 4, since MIPS instructions are always 4-byte aligned.
   // Second, You also need to update the NextPCReg
-	return spid;
+  	return spid;
 }
 
 
@@ -140,11 +132,19 @@ int getPathLen(char *name){
 	for(int i = 0 ; i < len && check; i++) {
 		if (machine->ReadMem((int)name + i, 1, &check))
 			pathLen = (i + 1);
+		else {
+			pathLen = -1;
+			break;
+		}
+			
 	}
 	if( pathLen == 0) {
-		printf("EXEC PASSES NO NAME");
+		printf("EXEC PASSES NO NAME\n");
 		return pathLen;
-	}else
+	}else if (check){
+		printf("file name should ends up with NULL\n");
+		return -1;
+	}else 
 		return pathLen;
 }
 
@@ -153,14 +153,56 @@ int getPathLen(char *name){
 void getPath(char *path , int name, int nameLen){
 	int check;
 	int i;
-	printf("in getPath, the length is line 153. the path is:\n");
+	//printf("in getPath, the length is line 153. the path is:\n");
 	for (i = 0; i < nameLen; i++) {
 		if (machine->ReadMem(name+i, 1, &check))
 			*(path + i) = check;
-	printf ("value is %c\n", check);
+	//printf ("value is %c\n", check);
 	}
 	*(path + i ) = 0;
 }
+
+    // argc = machine->ReadRegister(5);
+    // argv = machine->ReadRegister(6);
+    // opt = machine->ReadRegister(7);
+    // all data we have from the Registers are int
+    // have to do coversion first
+    // determine which type of the data is
+    // int = 4 bit
+    // int[] = 4 bit * len
+    // char = 1 bit 
+    // char[] = 1 bit * len
+    // char*  = ???
+
+// int userRead(){
+// 	 buffer = machine->ReadRegister(4);
+//      size = machine->ReadRegister(5);
+//      id = machine->ReadRegister(6);
+//      unsigned char ch;
+
+//      if((unsigned int)buffer <= 0){
+//      	printf("invalid addr\n");
+//      	return -1;
+//      }
+//      if(id != ConsoleInput) {
+//      	printf("not ConsoleInput\n");
+//      	 return -1;
+//      }
+//      if(size <= 0) {
+//      	printf("argument size cannot be <= 0\n");
+//      	return -1;
+//      }
+
+//      for(int i = 0; i < size; i++) {
+//      	ch = consoleManager->getChar();
+//      	//copy ch to memory
+//      }
+//      return size
+
+// }
+// void userWirte(char *buffer, int size, OpenFileId id){
+
+// }
 
 
 

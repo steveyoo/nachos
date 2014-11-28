@@ -85,7 +85,7 @@ int AddrSpace::Initialize(OpenFile *executable){
     size = numPages * PageSize;
    
     if (numPages > NumPhysPages ||  numPages > (unsigned int)memoryManager->getFreePageNum()) {
-        printf(" file is too big");
+        printf(" file is too big to be load");
         ASSERT(FALSE);
     }
     printf("********************** NUM PHYS PAGES: %d, PAGE SIZE: 0x%x\n", NumPhysPages, PageSize);

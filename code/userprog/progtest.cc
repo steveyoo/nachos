@@ -26,6 +26,7 @@
 MemoryManager * memoryManager;
 Table *tableManager;
 
+
 void
 StartProcess(char *filename)
 { 
@@ -56,7 +57,7 @@ StartProcess(char *filename)
     
     printf("all good \n");
     int spid = tableManager->Alloc((void*)currentThread);
-    ASSERT(spid >= 1);
+    ASSERT(spid == 1);
     currentThread->spaceID = spid;
     printf("begin to run machine \n");
     machine->Run();			// jump to the user progam

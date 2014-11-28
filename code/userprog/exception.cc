@@ -82,43 +82,75 @@ ExceptionHandler(ExceptionType which)
         		break;
         	case SC_Exit:
                 // TODO: should be moved to sysexit.cc like Exec 
-    
-        		userEixt();
+        		userExit();
         		break;	
         	case SC_Exec:
         		userExec();
         		break;
         	case SC_Join:
-        		// extra credit.
+        		printf("Join is the extra credit part\n");
+                ASSERT(FALSE);
         		// to handle Join
         		break;
         	case SC_Create:
-        		// TO DO
+        		printf("SC_Create is not required\n");
+                ASSERT(FALSE);
         		break;
 	     	case SC_Open:
-	     		// TO DO
+	     		printf(" SC_Open not required\n");
+                ASSERT(FALSE);
 	     		break;
 			case SC_Read:	
-				// TO DO
+				printf("SC_Read is not required\n");
+                ASSERT(FALSE);
 				break;	
 			case SC_Write:
-				// TO DO
+				printf("SC_Write is not required\n");
+                ASSERT(FALSE);
 				break;
 			case SC_Close:
-				// TO DO
+				printf("SC_Close is not required\n");
+                ASSERT(FALSE);
 				break;
 			case SC_Fork:
-				// TO DO
+				printf("SC_Forkis not required\n");
+                ASSERT(FALSE);
 				break;
-				// TO DO
+				printf("Fork is not required\n");
+                ASSERT(FALSE);
 			case SC_Yield:
+                    printf("SC_Yield is required\n");
+                    machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                    machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
 				break;
+            default :
+                 printf("Unexpected user mode exception %d %d\n", which, type);
+                ASSERT(FALSE);
     	}	// end of switch casle	
     }	// end of if statement
-    else {    // other system calls, handdling late.
+        
+    else if (which == NumExceptionTypes) {
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(false);
+    }
+    else if (which == IllegalInstrException) {
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(false);
+    } 
+    else if (which == OverflowException) {
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(false);
+    }
+    else if (which == AddressErrorException) {
+
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(false);
+    } else {
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
+
 }
 
 

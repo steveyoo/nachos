@@ -51,9 +51,12 @@
 typedef int SpaceId;
 
 // Exec for part 2.  it takes no input and return a space id 
-SpaceId userExec();
+int userExec();
 
 void userExit();
+
+// int userRead();
+// int userWirte();
 
 int getPathLen(char *name);
 

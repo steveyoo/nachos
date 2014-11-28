@@ -29,7 +29,7 @@ int Table::getTableSize(){
 /* Allocate a table slot for "object", returning the "index" of the
 allocated entry; otherwise, return -1 if no free slots are available. */
 int Table::Alloc(void *object) {
-	int id = -1;
+	int id = 0;
 	tableLock->Acquire();
 	for(int i = 0; i < tableSize; i++) {
 		if(table[i] == NULL){
@@ -61,8 +61,34 @@ void Table::Release(int index) {
 		table[(index - 1)];
 		tableSize++;
 	}
-	else  // leave like this now, may need ASSERT(FALSE)
+	else  { // leave like this now, may need ASSERT(FALSE)
 		printf("index bigger or less than the table");
+		ASSERT(FALSE);
+	}
 	tableLock->Release();
 }
+
+void Table::ReleaseAll(){
+	tableLock->Acquire();
+	for(int i = 0; i <tableSize; i++)
+		table[i] = NULL;
+	tableLock->Release();
+}
+
+bool Table::AnyExist(){
+	int anyExist = 0;
+	tableLock->Acquire();
+	for (int i = 0; i < tableSize; i++ ){
+		if (table[i] != NULL)
+			anyExist++;
+	}
+	ASSERT(anyExist != 0);
+	tableLock->Release();
+	return anyExist;
+}
+
+
+
+
+
 
