@@ -15,6 +15,7 @@
 #include "synch.h"
 #include "memorymanager.h"
 #include "table.h"
+#include "synchconsole.h"
 
 //----------------------------------------------------------------------
 // StartProcess
@@ -25,15 +26,15 @@
 //gobal MemoryManagers
 MemoryManager * memoryManager;
 Table *tableManager;
-
+SynchConsole *synchConsole;
 
 void
 StartProcess(char *filename)
 { 
-
     //let memManager controll all the physciall memory
     memoryManager = new MemoryManager(NumPhysPages);
     tableManager = new Table(256);
+    synchConsole = new SynchConsole(NULL,NULL);
 
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;

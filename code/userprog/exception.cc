@@ -62,13 +62,6 @@
 //     }
 // }
 
-
-
-
-
-
-
-
 void
 ExceptionHandler(ExceptionType which)
 {
@@ -100,14 +93,59 @@ ExceptionHandler(ExceptionType which)
 	     		printf(" SC_Open not required\n");
                 ASSERT(FALSE);
 	     		break;
-			case SC_Read:	
-				printf("SC_Read is not required\n");
-                ASSERT(FALSE);
-				break;	
-			case SC_Write:
-				printf("SC_Write is not required\n");
-                ASSERT(FALSE);
+
+			case SC_Read:
+                {
+                    char buffer = machine->ReadRegister(4);
+                    int size = machine->ReadRegister(5);
+                    OpenFileId id = machine->ReadRegister(6);
+
+                    //buffer address == 0 is often a valid address in Nachos (why?). 
+                    //Size == 0 is also a valid argument.
+
+                    //Try to read into a memory that does not have a valid 
+                    //physical page mapped or not writable (when size > 0).
+                    if(size > 0 && (unsigned int)&buffer < 0){
+                        printf("Invalid address.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    //Try to read on file id other than serial console input.
+                    if(id != ConsoleInput) {
+                        printf("Not ConsoleInput.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    //Try to read with a negative size.
+                    if(size < 0) {
+                        printf("Argument size cannot be < 0.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    machine->WriteRegister(2, Read(&buffer, size, id));
+                    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                }
 				break;
+
+			case SC_Write:
+                {
+                    char buffer = machine->ReadRegister(4);
+                    int size = machine->ReadRegister(5);
+                    OpenFileId id = machine->ReadRegister(6);
+
+                    if(size > 0 && (unsigned int)&buffer < 0){
+                        printf("Invalid address.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    if(id != ConsoleOutput) {
+                        printf("Not ConsoleOutput.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    if(size < 0) {
+                        printf("Argument size cannot be < 0.\n");
+                        machine->WriteRegister(2, -1);
+                    }
+                    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                }
+				break;
+
 			case SC_Close:
 				printf("SC_Close is not required\n");
                 ASSERT(FALSE);
@@ -152,5 +190,3 @@ ExceptionHandler(ExceptionType which)
     }
 
 }
-
-

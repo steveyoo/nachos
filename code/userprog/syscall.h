@@ -58,6 +58,8 @@ void userExit();
 // int userRead();
 // int userWirte();
 
+
+
 int getPathLen(char *name);
 
 void getPath(char *path , int name, int nameLen);
@@ -68,6 +70,9 @@ void getPath(char *path , int name, int nameLen);
 //////////////////////////////////////////////////////////////////////////
  //////////////////////////////////////////////////////////////////////
 
+// Part 4 system calls for console reads and writes
+int consoleRead();
+int consoleWrite();
 
 
 /* Stop Nachos, and print out performance stats */

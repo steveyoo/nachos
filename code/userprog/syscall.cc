@@ -2,6 +2,7 @@
 #include "system.h"
 #include "table.h"
 
+
 // Register #4 saves a pointer of type char * in virtual memory address,
 // you need to translate that into physical memory by replacing the virtual
 // page id in the address into physical page id. This string is a parameter 
@@ -174,36 +175,40 @@ void getPath(char *path , int name, int nameLen){
     // char[] = 1 bit * len
     // char*  = ???
 
-// int userRead(){
-// 	 buffer = machine->ReadRegister(4);
-//      size = machine->ReadRegister(5);
-//      id = machine->ReadRegister(6);
-//      unsigned char ch;
 
-//      if((unsigned int)buffer <= 0){
-//      	printf("invalid addr\n");
-//      	return -1;
-//      }
-//      if(id != ConsoleInput) {
-//      	printf("not ConsoleInput\n");
-//      	 return -1;
-//      }
-//      if(size <= 0) {
-//      	printf("argument size cannot be <= 0\n");
-//      	return -1;
-//      }
+//Part 4 system calls for console read and write
+/* Read "size" bytes from the open file into "buffer".
+ * Return the number of bytes actually read -- if the open file isn't
+ * long enough, or if it is an I/O device, and there aren't enough
+ * characters to read, return whatever is available (for I/O devices,
+ * you should always wait until you can return at least one character).
+ */
+/* 	
+	Try to read size bytes into the user buffer.  
+	Return the number of bytes actually read, which may 
+	be less than the number of bytes requested, 
+	e.g., if there are fewer than size bytes avail­able.
+*/
+int Read(char *buffer, int size, OpenFileId id) {
+	//read from id and push it into buffer
+	char value;
+	char* data = &value;
+	for(int i = 0; i < size; i++) {
+		synchConsole->ReadConsole(data);
+		buffer[i] = *data;
+	}
+	return sizeof(buffer);
+}
 
-//      for(int i = 0; i < size; i++) {
-//      	ch = consoleManager->getChar();
-//      	//copy ch to memory
-//      }
-//      return size
-
-// }
-// void userWirte(char *buffer, int size, OpenFileId id){
-
-// }
-
-
+/* 	
+	Write size bytes of data from the buffer 
+	into the open descriptor named by id. 
+*/
+void Write(char *buffer, int size, OpenFileId id) {
+    //read buffer and write to id
+    for(int i = 0; i < size; i++) {
+		synchConsole->WriteConsole(&buffer[i]);
+	}
+}
 
 

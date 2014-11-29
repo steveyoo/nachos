@@ -60,7 +60,7 @@ Scheduler::ReadyToRun (Thread *thread)
 
     //inserts based on the priority
     readyList->SortedInsert((void *)thread, thread->getPriority()*(-1));
-    scheduler->Print();
+    //scheduler->Print();
 }
 
 //----------------------------------------------------------------------

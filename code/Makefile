@@ -47,7 +47,6 @@ print:
 	$(LPR) machine/*.h machine/*.cc
 	$(LPR) bin/noff.h bin/coff.h bin/coff2noff.c
 	$(LPR) test/*.h test/*.c test/*.s
-	$(LPR) memorymanager/*.h memorymanager/*.cc
 
 turnin: clean
 	cd .. && tar czf code.tgz code
