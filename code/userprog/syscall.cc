@@ -69,7 +69,11 @@ int userExec(){
     executable = fileSystem->Open((char*) path);
     if (executable == NULL) {
     	printf("no such file in user_Exec line 53 \n");
-    	return 0;
+    int pcreg = machine->ReadRegister(PCReg);
+ 	machine->WriteRegister(PrevPCReg, pcreg);
+    machine->WriteRegister(PCReg, pcreg + 4);
+    machine->WriteRegister(NextPCReg, pcreg + 8); 
+    return 0;
     	//ASSERT(FALSE);
     }
 
@@ -193,18 +197,10 @@ int Read(char *buffer, int size, OpenFileId id) {
 	//read from id and push it into buffer
 	char value;
 	char* data = &value;
-	synchConsole->ReadConsole(data);
-	printf("*data = %c\n", *data);
-	if (*data == '\n') {
-		//printf("Found newline.\n");
-        machine->WriteMem(machine->ReadRegister(4), 1, *data);
-        machine->WriteMem((machine->ReadRegister(4))+2, 1, *data);
-		//printf("%c\n", *buffer);
-		//printf("%c\n", *(buffer+1));
-		return sizeof(buffer);
+	for(int i = 0; i < size; i++) {
+		synchConsole->ReadConsole(data);
+		buffer[i] = *data;
 	}
-    machine->WriteMem(machine->ReadRegister(4), 1, *data);
-	//printf("%c", *buffer);
 	return sizeof(buffer);
 }
 
@@ -214,7 +210,9 @@ int Read(char *buffer, int size, OpenFileId id) {
 */
 void Write(char *buffer, int size, OpenFileId id) {
     //read buffer and write to id
-	synchConsole->WriteConsole(buffer);
+    for(int i = 0; i < size; i++) {
+		synchConsole->WriteConsole(&buffer[i]);
+	}
 }
 
 

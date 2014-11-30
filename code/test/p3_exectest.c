@@ -15,14 +15,13 @@ int main(){
 
 
 	// this call should be falil because thread does not exist.
-	// Exec("../test/thread", 0, 0, 0);
-	// Yield();
-
+	Exec("../test/thread", 0, 0, 0);
+	
 
 	// this one should print out a statement." file is too big to be load"
 	// and return 0
 	Exec("../test/outmemorytest", 0, 0, 0);
-	Yield();
+	
 
 	// Exec should find the path and excute the Exit();
 	// excution is sucessed
