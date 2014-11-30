@@ -195,14 +195,23 @@ void getPath(char *path , int name, int nameLen){
 */
 int Read(char *buffer, int size, OpenFileId id) {
 	//read from id and push it into buffer
-	char value;
-	char* data = &value;
-	for(int i = 0; i < size; i++) {
-		synchConsole->ReadConsole(data);
-		buffer[i] = *data;
-	}
-	return sizeof(buffer);
-}
+ 	char value;
+ 	char* data = &value;
+	synchConsole->ReadConsole(data);
+	//printf("*data = %c\n", *data);
+	if (*data == '\n') {
+		//printf("Found newline.\n");
+        machine->WriteMem(machine->ReadRegister(4), 1, *data);
+        machine->WriteMem((machine->ReadRegister(4))+2, 1, *data);
+		//printf("%c\n", *buffer);
+		//printf("%c\n", *(buffer+1));
+		return sizeof(buffer);
+ 	}
+    machine->WriteMem(machine->ReadRegister(4), 1, *data);
+	//printf("%c", *buffer);
+ 	return sizeof(buffer);
+ }
+
 
 /* 	
 	Write size bytes of data from the buffer 
@@ -210,9 +219,7 @@ int Read(char *buffer, int size, OpenFileId id) {
 */
 void Write(char *buffer, int size, OpenFileId id) {
     //read buffer and write to id
-    for(int i = 0; i < size; i++) {
-		synchConsole->WriteConsole(&buffer[i]);
-	}
+	synchConsole->WriteConsole(buffer);
 }
 
 
