@@ -206,30 +206,50 @@ ExceptionHandler(ExceptionType which)
                     machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
 				break;
             default :
-                 printf("Unexpected user mode exception %d %d\n", which, type);
+                 printf("Unexpected system call %d %d\n", which, type);
                 ASSERT(FALSE);
     	}	// end of switch casle	
     }	// end of if statement
-        
-    else if (which == NumExceptionTypes) {
-        printf("Unexpected user mode exception %d %d\n", which, type);
+    else if (which ==  PageFaultException) {
+        printf("Unexpected user mode exception :  PageFaultException,%d %d\n", which, type);
         ASSERT(false);
     }
-    else if (which == IllegalInstrException) {
-        printf("Unexpected user mode exception %d %d\n", which, type);
+    else if (which == ReadOnlyException) {
+        printf("Unexpected user mode exception :ReadOnlyException%d %d\n", which, type);
         ASSERT(false);
     } 
-    else if (which == OverflowException) {
-        printf("Unexpected user mode exception %d %d\n", which, type);
+    else if (which == BusErrorException) {
+        printf("Unexpected user mode exception: BusErrorException %d %d\n", which, type);
         ASSERT(false);
     }
     else if (which == AddressErrorException) {
-
-        printf("Unexpected user mode exception %d %d\n", which, type);
+        printf("Unexpected user mode exception: AddressErrorException %d %d\n", which, type);
+        ASSERT(false);
+    } else if (which == OverflowException) {
+        printf("Unexpected user mode exception: OverflowException %d %d\n", which, type);
+        ASSERT(false);
+    }else if (which == IllegalInstrException) {
+        printf("Unexpected user mode exception: IllegalInstrException %d %d\n", which, type);
+        ASSERT(false);
+    }else if (which == NumExceptionTypes) {
+        printf("Unexpected user mode exception: NumExceptionTypes %d %d\n", which, type);
         ASSERT(false);
     } else {
-        printf("Unexpected user mode exception %d %d\n", which, type);
-        ASSERT(FALSE);
+        printf("NO Unexpected user mode exception %d %d\n", which, type);
     }
+}//
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

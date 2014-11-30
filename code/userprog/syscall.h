@@ -51,20 +51,14 @@
 typedef int SpaceId;
 
 // Exec for part 2.  it takes no input and return a space id 
-int userExec();
+SpaceId userExec();
 
 void userExit();
 
-// int userRead();
-// int userWirte();
-
-
-
+// helper function to get the path of the 1st argument of Exec
 int getPathLen(char *name);
 
 void getPath(char *path , int name, int nameLen);
-
-
 
 
 //////////////////////////////////////////////////////////////////////////

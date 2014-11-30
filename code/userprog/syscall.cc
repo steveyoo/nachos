@@ -24,25 +24,47 @@ void intiUserProcess(int argv) {
     machine->Run();
 }
 
+// void userExit(){
+// 	int spid = currentThread->spaceID;
+// 	if(spid != 1){
+// 		delete currentThread->space;
+// 		tableManager->Release(spid);
+// 		currentThread->Finish();
+// 	} else 
+// 		{
+// 		ASSERT(currentThread->spaceID== 1);
+//         while(1 != tableManager->AnyExist()) {
+//                currentThread->Yield();
+//         } 
+// 	}
+// 	 printf("exiting the process \n");
+//      interrupt->Halt();
+// }
+
+
 void userExit(){
+	//case that currenThread is not the parent therad pid != 1
 	int spid = currentThread->spaceID;
 	if(spid != 1){
 		delete currentThread->space;
 		tableManager->Release(spid);
 		currentThread->Finish();
+		return;
 	} else 
 		{
+	//case currenTread is a parent th
 		ASSERT(currentThread->spaceID== 1);
-        while(1 != tableManager->AnyExist()) {
-               currentThread->Yield();
-        } 
+		 delete currentThread->space;
+         tableManager->ReleaseAll();
+         currentThread->Yield();
+         interrupt->Halt();    
 	}
-	 printf("exiting the process \n");
-     interrupt->Halt();
+	 // printf("exiting the process \n");
+  	//    interrupt->Halt();
 }
 
  
-int userExec(){
+SpaceId userExec(){
 	//SpaceId Exec(char *name, int argc, char **argv, int opt);
 	int name;
 	// int  argc, argv, opt;

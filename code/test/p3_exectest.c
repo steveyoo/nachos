@@ -9,21 +9,41 @@
 
 
 // NumPhysPages  128
+// every test case in "../test/*" has Exit() function in it,
+// if Exit() not working, we cannot clear pysical memory, current thread' space and  table
 
+// this test should excute to the  Exec("../test/outmemorytest", 0, 0, 0), and halts.
 
 int main(){
-
-
-	// this call should be falil because thread does not exist.
-	Exec("../test/thread", 0, 0, 0);
+	// this Exec should print out a statement "no such  no such file in user_Exec line 53" 
+	// and continues to excute next Exec
+	Exec("../test/noExistFile", 0, 0, 0);
 	
-
-	// this one should print out a statement." file is too big to be load"
-	// and return 0
-	Exec("../test/outmemorytest", 0, 0, 0);
-	
-
 	// Exec should find the path and excute the Exit();
 	// excution is sucessed
 	Exec("../test/exectest",0,0,0);
+
+	// conitune to call Exec to run another problems 
+	// it should works  becuase we have clear the physical memory, space and table
+	// of by using the Exit in the "/test/exectest"
+	Exec("../test/array",0,0,0);
+
+	// conitune to call Exec to run another problems 
+	// it should works  becuase we have clear the physical memory, space and table
+	// of by using the Exit in the "/test/exectest"
+	Exec("../test/array",0,0,0);
+
+	// conitune to call Exec to run another problems 
+	// it should works  becuase we have clear the physical memory, space and table
+	// of by using the Exit in the "/test/exectest"
+	Exec("../test/array",0,0,0);
+
+	// conitune to call Exec to run another problems 
+	// it should works  becuase we have clear the physical memory, space and table
+	// of by using the Exit in the "/test/exectest"
+	Exec("../test/array",0,0,0);
+
+	// this Exec cause should print out a statement." file is too big to be load"
+	// and half the process because we dont have enough memory
+	Exec("../test/outmemorytest", 0, 0, 0);
 }

@@ -41,6 +41,9 @@ StartProcess(char *filename)
 
     if (executable == NULL) {
         printf("Unable to open file %s\n", filename);
+        //parenet process starts here, if we cannot find the file
+        //just stop the process
+        ASSERT(false);
         return;
     }
     space = new AddrSpace();
