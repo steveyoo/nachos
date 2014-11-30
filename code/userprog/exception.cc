@@ -96,7 +96,14 @@ ExceptionHandler(ExceptionType which)
 
 			case SC_Read:
                 {
-                    char buffer = machine->ReadRegister(4);
+                    // passing in &buffer[i] instead of just buffer
+                    // i isn't being updated for some reason, the buffer isn't moving addresses.
+                    // do i need to writemem?
+                    int buffer;
+                    machine->ReadMem(machine->ReadRegister(4), 1, &buffer);
+                    // printf("%u\n", machine->ReadRegister(4));
+                    // printf("%u\n", buffer);
+                    // printf("%u\n", buffer);
                     int size = machine->ReadRegister(5);
                     OpenFileId id = machine->ReadRegister(6);
 
@@ -108,41 +115,77 @@ ExceptionHandler(ExceptionType which)
                     if(size > 0 && (unsigned int)&buffer < 0){
                         printf("Invalid address.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
                     //Try to read on file id other than serial console input.
                     if(id != ConsoleInput) {
                         printf("Not ConsoleInput.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
                     //Try to read with a negative size.
                     if(size < 0) {
                         printf("Argument size cannot be < 0.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
-                    machine->WriteRegister(2, Read(&buffer, size, id));
+                    machine->WriteRegister(2, Read((char*)&buffer, size, id));
+                    //machine->ReadMem(machine->ReadRegister(4), 1, &buffer);
+                    //printf("%d - %c\n", machine->ReadRegister(4), buffer);
+                    machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
                     machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                    machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
                 }
 				break;
 
 			case SC_Write:
                 {
-                    char buffer = machine->ReadRegister(4);
+                    int buffer;
+                    machine->ReadMem(machine->ReadRegister(4), 1, &buffer);  
+                    //printf("%d\n", machine->ReadRegister(4));
                     int size = machine->ReadRegister(5);
                     OpenFileId id = machine->ReadRegister(6);
 
                     if(size > 0 && (unsigned int)&buffer < 0){
                         printf("Invalid address.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
                     if(id != ConsoleOutput) {
                         printf("Not ConsoleOutput.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
                     if(size < 0) {
                         printf("Argument size cannot be < 0.\n");
                         machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
                     }
+                    for (int i = 0; i < size; i++) {
+                        machine->ReadMem(machine->ReadRegister(4) + i, 1, &buffer);  
+                        Write((char*)&buffer, size, id);
+                    }
+                    machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
                     machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                    machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
                 }
 				break;
 
