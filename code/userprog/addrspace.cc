@@ -88,7 +88,6 @@ int AddrSpace::Initialize(OpenFile *executable){
         printf(" file is too big to be load");
         ASSERT(FALSE);
     }
-    printf("********************** NUM PHYS PAGES: %d, PAGE SIZE: %u\n", NumPhysPages, PageSize);
    // create a pageTable (amount of page entires) for the current process 
 
     DEBUG('4',"Initializing address space, num pages %d, size %d\n", numPages, size);
