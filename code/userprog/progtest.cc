@@ -59,11 +59,11 @@ StartProcess(char *filename)
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
     
-    printf("all good \n");
+    //printf("all good \n");
     int spid = tableManager->Alloc((void*)currentThread);
     ASSERT(spid == 1);
     currentThread->spaceID = spid;
-    printf("begin to run machine \n");
+    //printf("begin to run machine \n");
     machine->Run();			// jump to the user progam
     ASSERT(FALSE);		
 	// machine->Run never returns;
