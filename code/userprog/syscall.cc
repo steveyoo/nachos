@@ -78,7 +78,7 @@ SpaceId userExec(){
     name = machine->ReadRegister(4);
 
     pathLen = getPathLen((char*)name);
-    printf("path length is equal to %d\n",pathLen);
+    //printf("path length is equal to %d\n",pathLen);
     if(pathLen <= 0) { 
     	printf(" no value path length find in userExec  line 43\n");
     	return 0;
@@ -102,17 +102,17 @@ SpaceId userExec(){
     thread = new Thread("userExec Thread\n");
  	space = new AddrSpace();
  	if(space->Initialize(executable)) {
- 		printf("Create sapce for a new thread; line 59 in userExec\n");
+ 		//printf("Create sapce for a new thread; line 59 in userExec\n");
  		thread->space = space;
  	} else{
- 		printf("Does not create sapce for a new thread..line 61 in userExec\n");
+ 		//printf("Does not create sapce for a new thread..line 61 in userExec\n");
  		return 0;
  		//ASSERT(FALSE);
  	}
  	delete executable;
 
  	spid = tableManager->Alloc((void*)thread);
- 	printf("pid is: %d name is: %s\n ", spid, thread->getName());
+ 	//printf("pid is: %d name is: %s\n ", spid, thread->getName());
  	if (spid<=0)
  		return 0;
  		//ASSERT(false);
@@ -125,7 +125,7 @@ SpaceId userExec(){
  	machine->WriteRegister(PrevPCReg, pcreg);
     machine->WriteRegister(PCReg, pcreg + 4);
     machine->WriteRegister(NextPCReg, pcreg + 8); 
-    printf ("go to next excution\n");
+  //  printf ("go to next excution\n");
   // hint from piazza.
   // First, PC should be always multiples of 4, since MIPS instructions are always 4-byte aligned.
   // Second, You also need to update the NextPCReg
