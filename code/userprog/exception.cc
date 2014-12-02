@@ -212,28 +212,56 @@ ExceptionHandler(ExceptionType which)
     }	// end of if statement
     else if (which ==  PageFaultException) {
         printf("Unexpected user mode exception :  PageFaultException,%d %d\n", which, type);
-        ASSERT(false);
+        int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     }
     else if (which == ReadOnlyException) {
         printf("Unexpected user mode exception :ReadOnlyException%d %d\n", which, type);
-        ASSERT(false);
+        int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     } 
     else if (which == BusErrorException) {
         printf("Unexpected user mode exception: BusErrorException %d %d\n", which, type);
-        ASSERT(false);
+        int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     }
     else if (which == AddressErrorException) {
         printf("Unexpected user mode exception: AddressErrorException %d %d\n", which, type);
-        ASSERT(false);
+       int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     } else if (which == OverflowException) {
         printf("Unexpected user mode exception: OverflowException %d %d\n", which, type);
-        ASSERT(false);
+         int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     }else if (which == IllegalInstrException) {
         printf("Unexpected user mode exception: IllegalInstrException %d %d\n", which, type);
-        ASSERT(false);
+        int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     }else if (which == NumExceptionTypes) {
         printf("Unexpected user mode exception: NumExceptionTypes %d %d\n", which, type);
-        ASSERT(false);
+        int spid = currentThread->spaceID;
+        if (spid == 1)
+            userExec();
+        else 
+            killProcess(spid);
     } else {
         printf("NO Unexpected user mode exception %d %d\n", which, type);
     }

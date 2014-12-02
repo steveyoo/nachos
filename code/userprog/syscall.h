@@ -68,6 +68,9 @@ void getPath(char *path , int name, int nameLen);
 int consoleRead();
 int consoleWrite();
 
+// part 5, kill the process that causes not exceptions
+// not using ASSERT
+void killProcess(int pid);
 
 /* Stop Nachos, and print out performance stats */
 void Halt();

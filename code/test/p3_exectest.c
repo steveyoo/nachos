@@ -25,23 +25,21 @@ int main(){
 
 	// conitune to call Exec to run another problems 
 	// it should works  becuase we have clear the physical memory, space and table
-	// of by using the Exit in the "/test/exectest"
+	// of by using the Exit in the "/test/array"
 	Exec("../test/array",0,0,0);
 
 	// conitune to call Exec to run another problems 
 	// it should works  becuase we have clear the physical memory, space and table
-	// of by using the Exit in the "/test/exectest"
+	// of by using the Exit in the "/test/array"
 	Exec("../test/array",0,0,0);
 
 	// conitune to call Exec to run another problems 
 	// it should works  becuase we have clear the physical memory, space and table
-	// of by using the Exit in the "/test/exectest"
-	Exec("../test/array",0,0,0);
+	// of by using the Exit in the "/test/matrix"
+	Exec("../test/matrix",0,0,0);
 
-	// conitune to call Exec to run another problems 
-	// it should works  becuase we have clear the physical memory, space and table
-	// of by using the Exit in the "/test/exectest"
-	Exec("../test/array",0,0,0);
+
+	//Exec("../test/divibyzero", 0, 0,0);
 
 	// this Exec cause should print out a statement." file is too big to be load"
 	// and half the process because we dont have enough memory

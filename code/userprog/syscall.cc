@@ -160,10 +160,9 @@ int getPathLen(char *name){
 		if (machine->ReadMem((int)name + i, 1, &check))
 			pathLen = (i + 1);
 		else {
-			pathLen = -1;
+			pathLen = i;
 			break;
-		}
-			
+		}		
 	}
 	if( pathLen == 0) {
 		printf("EXEC PASSES NO NAME\n");
@@ -189,17 +188,20 @@ void getPath(char *path , int name, int nameLen){
 	*(path + i ) = 0;
 }
 
-    // argc = machine->ReadRegister(5);
-    // argv = machine->ReadRegister(6);
-    // opt = machine->ReadRegister(7);
-    // all data we have from the Registers are int
-    // have to do coversion first
-    // determine which type of the data is
-    // int = 4 bit
-    // int[] = 4 bit * len
-    // char = 1 bit 
-    // char[] = 1 bit * len
-    // char*  = ???
+// part 5 
+void killProcess(int pid){
+	delete currentThread->space;
+	tableManager->Release(pid);
+	currentThread->Finish();
+
+	int pcreg = machine->ReadRegister(PCReg);
+ 	machine->WriteRegister(PrevPCReg, pcreg);
+    machine->WriteRegister(PCReg, pcreg + 4);
+    machine->WriteRegister(NextPCReg, pcreg + 8); 
+
+}
+
+
 
 
 //Part 4 system calls for console read and write
