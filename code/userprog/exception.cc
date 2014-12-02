@@ -96,14 +96,8 @@ ExceptionHandler(ExceptionType which)
 
 			case SC_Read:
                 {
-                    // passing in &buffer[i] instead of just buffer
-                    // i isn't being updated for some reason, the buffer isn't moving addresses.
-                    // do i need to writemem?
                     int buffer;
                     machine->ReadMem(machine->ReadRegister(4), 1, &buffer);
-                    // printf("%u\n", machine->ReadRegister(4));
-                    // printf("%u\n", buffer);
-                    // printf("%u\n", buffer);
                     int size = machine->ReadRegister(5);
                     OpenFileId id = machine->ReadRegister(6);
 
@@ -112,7 +106,7 @@ ExceptionHandler(ExceptionType which)
 
                     //Try to read into a memory that does not have a valid 
                     //physical page mapped or not writable (when size > 0).
-                    if(size > 0 && (unsigned int)&buffer < 0){
+                    if(size > 0 && buffer < 0){
                         printf("Invalid address.\n");
                         machine->WriteRegister(2, -1);
                         machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
@@ -139,8 +133,6 @@ ExceptionHandler(ExceptionType which)
                         break;
                     }
                     machine->WriteRegister(2, Read((char*)&buffer, size, id));
-                    //machine->ReadMem(machine->ReadRegister(4), 1, &buffer);
-                    //printf("%d - %c\n", machine->ReadRegister(4), buffer);
                     machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
                     machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
                     machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
@@ -151,11 +143,10 @@ ExceptionHandler(ExceptionType which)
                 {
                     int buffer;
                     machine->ReadMem(machine->ReadRegister(4), 1, &buffer);  
-                    //printf("%d\n", machine->ReadRegister(4));
                     int size = machine->ReadRegister(5);
                     OpenFileId id = machine->ReadRegister(6);
 
-                    if(size > 0 && (unsigned int)&buffer < 0){
+                    if(size > 0 && buffer < 0){
                         printf("Invalid address.\n");
                         machine->WriteRegister(2, -1);
                         machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
