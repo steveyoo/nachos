@@ -288,17 +288,17 @@ while(!pageTable[i].valid)
 {
   i++;
 }
-    pageTable[i].valid = FALSE;
-    TranslationEntry *pte;
-    pte = &pageTable[i];
-    if(pageTable[i].dirty)
-    {
-     // printf("PTE to Evict is :  %d\n",  pte);
-      backingStore->PageOut(pte);
-      pageTable[i].dirty = FALSE; 
-      pageTable[i].isStore = TRUE;   
-    }
-    memoryManager->FreePage(pageTable[i].physicalPage);
+pageTable[i].valid = FALSE;
+TranslationEntry *pte;
+pte = &pageTable[i];
+if(pageTable[i].dirty)
+{
+// printf("PTE to Evict is :  %d\n",  pte);
+    backingStore->PageOut(pte);
+    pageTable[i].dirty = FALSE; 
+    pageTable[i].isStore = TRUE;   
+}
+memoryManager->FreePage(pageTable[i].physicalPage);
 }
 
 
@@ -441,13 +441,13 @@ void
 BackingStore::PageOut(TranslationEntry *pte){
    // printf("pageout has been called\n"); 
     stats->incrNumPageOuts(); 
-    int pagenum;
-    int phys_addr;
+    int pageNum;
+    int physAddr;
     
-    pagenum = space->getPteIndex(pte);
+    pageNum = space->getPteIndex(pte);
    // printf("pageout has been called %d\n", stats->numPageOuts); 
-    phys_addr = space->Translate(pagenum*PageSize);
-    swap->WriteAt(&machine->mainMemory[phys_addr], PageSize, pagenum*PageSize);
+    physAddr = space->Translate(pageNum*PageSize);
+    swap->WriteAt(&machine->mainMemory[physAddr], PageSize, pageNum*PageSize);
 }
 
 
@@ -455,11 +455,11 @@ void
 BackingStore::PageIn(TranslationEntry *pte){
     // printf("pagein has been called\n"); 
      stats->incrNumPageIns();
-     int pagenum;
-     int phys_addr;
-     pagenum = space->getPteIndex(pte);
-     phys_addr = space->Translate(pagenum*PageSize);
-     swap->ReadAt(&machine->mainMemory[phys_addr], PageSize, pagenum*PageSize);
+     int pageNum;
+     int physAddr;
+     pageNum = space->getPteIndex(pte);
+     physAddr = space->Translate(pageNum*PageSize);
+     swap->ReadAt(&machine->mainMemory[physAddr], PageSize, pageNum*PageSize);
 }
 
 
