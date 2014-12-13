@@ -1,4 +1,5 @@
 
+
 // addrspace.cc
 //	Routines to manage address spaces (executing user programs).
 //
@@ -18,7 +19,6 @@
 #include "addrspace.h"
 #include "copyright.h"
 #include "system.h"
-#include "noff.h"
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -62,16 +62,17 @@ SwapHeader (NoffHeader *noffH)
 //----------------------------------------------------------------------
 
 AddrSpace::AddrSpace()
-{   
-    pageTable = NULL;
+{  
+
     //dummy constructor, its job is replace by Initialize
 }
 int AddrSpace::Initialize(OpenFile *executable){
 
-    NoffHeader noffH;
+    // NoffHeader noffH;
     unsigned int i, size;
+    this->executableFile = executable;
 
-    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+    executableFile->ReadAt((char *)&noffH, sizeof(noffH), 0);
     if ((noffH.noffMagic != NOFFMAGIC) &&
             (WordToHost(noffH.noffMagic) == NOFFMAGIC))
         SwapHeader(&noffH);
@@ -85,8 +86,8 @@ int AddrSpace::Initialize(OpenFile *executable){
     size = numPages * PageSize;
    
     if (numPages > NumPhysPages ||  numPages > (unsigned int)memoryManager->getFreePageNum()) {
-        printf(" file is too big to be load");
-        ASSERT(FALSE);
+        printf(" file is too big to be load\n");
+        //return -1;
     }
    // create a pageTable (amount of page entires) for the current process 
 
@@ -99,100 +100,243 @@ int AddrSpace::Initialize(OpenFile *executable){
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         pageTable[i].virtualPage = i;
-        pageTable[i].physicalPage = memoryManager->AllocPage();// assign a free physical page
+        //pageTable[i].physicalPage = 0;// assign a free physical page
         // zero out the entire address space, to zero the unitialized data segment
         // and the stack segment  
         // zero the allocted page
-        ASSERT(pageTable[i].physicalPage >= 0);
-        bzero(&machine->mainMemory[pageTable[i].physicalPage * PageSize], PageSize);
-        pageTable[i].valid = TRUE;
+         //  ASSERT(pageTable[i].physicalPage >= 0);
+        //  bzero(&machine->mainMemory[pageTable[i].physicalPage * PageSize], PageSize);
+        pageTable[i].valid = FALSE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on
                                         // a separate page, we could set its
                                          // pages to be read-only
-    }
+        pageTable[i].isStore = FALSE;
+    }   
+
+    return 1;
+}
     // counters for putting code in to physcial menmory
-    unsigned int codeSize = noffH.code.size;
-    unsigned int codeVirtualAddr = noffH.code.virtualAddr;
-    unsigned int codeInFileAddrt = noffH.code.inFileAddr;
-    unsigned int offset = codeVirtualAddr & (PageSize - 1); //bitwise multiplicationt
-    unsigned int physicalPageNum;
+//     unsigned int codeSize = noffH.code.size;
+//     unsigned int codeVirtualAddr = noffH.code.virtualAddr;
+//     unsigned int codeInFileAddrt = noffH.code.inFileAddr;
+//     unsigned int offset = codeVirtualAddr & (PageSize - 1); //bitwise multiplicationt
+//     unsigned int physicalPageNum;
 
-// then, copy code into memory
-    while(codeSize >= (PageSize - offset)) {
-        physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
-        // printf("code.........................................: \n");
-        // printf("code size: %u\n", codeSize);
-        // printf("virtual addr: %u\n", codeVirtualAddr);
-        // printf("in file addr: %u\n", codeInFileAddrt);
-        // printf("offset: %u\n", offset);
-        // printf("page number: %u\n", physicalPageNum);
-        // printf("page size: %u\n", PageSize);
-        executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
-                           PageSize - offset, codeInFileAddrt);
-        // update conuters      
-        codeSize = codeSize - (PageSize - offset);
-        codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
-        codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
-        offset = codeVirtualAddr & (PageSize - 1);
-    }
-    // corner case, last part of the code segment where 
-    // code size may be less then the pageSize - offset
-    if(codeSize > 0) {
-        physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
-                           codeSize, codeInFileAddrt);
-        // printf("code.........................................: \n");
-        // printf("code size: %u\n", codeSize);
-        // printf("virtual addr: %u\n", codeVirtualAddr);
-        // printf("in file addr: %u\n", codeInFileAddrt);
-        // printf("offset: %u\n", offset);
-        // printf("physical page number: %u\n", physicalPageNum);
-        // printf("page size: %u\n", PageSize);
-    }
-   // printf(">>>>>>>>>>>>>>>>>>>>>end of code <<<<<<<<<<<<<<<<<<<\n");
+// // then, copy code into memory
+//     while(codeSize >= (PageSize - offset)) {
+//         physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
+//         // printf("code.........................................: \n");
+//         // printf("code size: %u\n", codeSize);
+//         // printf("virtual addr: %u\n", codeVirtualAddr);
+//         // printf("in file addr: %u\n", codeInFileAddrt);
+//         // printf("offset: %u\n", offset);
+//         // printf("page number: %u\n", physicalPageNum);
+//         // printf("page size: %u\n", PageSize);
+//         executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
+//                            PageSize - offset, codeInFileAddrt);
+//         // update conuters      
+//         codeSize = codeSize - (PageSize - offset);
+//         codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
+//         codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
+//         offset = codeVirtualAddr & (PageSize - 1);
+//     }
+//     // corner case, last part of the code segment where 
+//     // code size may be less then the pageSize - offset
+//     if(codeSize > 0) {
+//         physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
+//         executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
+//                            codeSize, codeInFileAddrt);
+//         // printf("code.........................................: \n");
+//         // printf("code size: %u\n", codeSize);
+//         // printf("virtual addr: %u\n", codeVirtualAddr);
+//         // printf("in file addr: %u\n", codeInFileAddrt);
+//         // printf("offset: %u\n", offset);
+//         // printf("physical page number: %u\n", physicalPageNum);
+//         // printf("page size: %u\n", PageSize);
+//     }
+//    // printf(">>>>>>>>>>>>>>>>>>>>>end of code <<<<<<<<<<<<<<<<<<<\n");
 
-    // copy data segments into memory
-    codeSize = noffH.initData.size;
-    codeVirtualAddr = noffH.initData.virtualAddr;
-    codeInFileAddrt = noffH.initData.inFileAddr;
-    offset = codeVirtualAddr & (PageSize - 1); 
+//     // copy data segments into memory
+//     codeSize = noffH.initData.size;
+//     codeVirtualAddr = noffH.initData.virtualAddr;
+//     codeInFileAddrt = noffH.initData.inFileAddr;
+//     offset = codeVirtualAddr & (PageSize - 1); 
     
-    while(codeSize >= (PageSize - offset)) {
-        physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
-        // printf("data.........................................: \n");
-        // printf("data size: %u\n", codeSize);
-        // printf("virtual addr: %u\n", codeVirtualAddr);
-        // printf("in file addr: %u\n", codeInFileAddrt);
-        // printf("offset: %u\n", offset);
-        // printf("physical page number: %u\n", physicalPageNum);
-        // printf("page size: %u\n", PageSize);
-        executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
-                           PageSize - offset, codeInFileAddrt);
-        // update conuters      
-        codeSize = codeSize - (PageSize - offset);
-        codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
-        codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
-        offset = codeVirtualAddr & (PageSize - 1); 
-    }
-    // corner case, last part of the initcode segment where 
-    // code size may be less then the pageSize - offset
-    if(codeSize > 0) {
-        physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
-                           codeSize, codeInFileAddrt);
-        // printf("data.........................................: \n");
-        // printf("data size: %u\n", codeSize);
-        // printf("virtual addr: %u\n", codeVirtualAddr);
-        // printf("in file addr: %u\n", codeInFileAddrt);
-        // printf("offset: %u\n", offset);
-        // printf("physical page number: %u\n", physicalPageNum);
-        // printf("page size: %u\n", PageSize);
-    }
+//     while(codeSize >= (PageSize - offset)) {
+//         physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
+//         // printf("data.........................................: \n");
+//         // printf("data size: %u\n", codeSize);
+//         // printf("virtual addr: %u\n", codeVirtualAddr);
+//         // printf("in file addr: %u\n", codeInFileAddrt);
+//         // printf("offset: %u\n", offset);
+//         // printf("physical page number: %u\n", physicalPageNum);
+//         // printf("page size: %u\n", PageSize);
+//         executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
+//                            PageSize - offset, codeInFileAddrt);
+//         // update conuters      
+//         codeSize = codeSize - (PageSize - offset);
+//         codeVirtualAddr = codeVirtualAddr + (PageSize - offset);
+//         codeInFileAddrt = codeInFileAddrt + (PageSize - offset);
+//         offset = codeVirtualAddr & (PageSize - 1); 
+//     }
+//     // corner case, last part of the initcode segment where 
+//     // code size may be less then the pageSize - offset
+//     if(codeSize > 0) {
+//         physicalPageNum = pageTable[codeVirtualAddr/PageSize].physicalPage;
+//         executable->ReadAt(&(machine->mainMemory[physicalPageNum*PageSize + offset]),
+//                            codeSize, codeInFileAddrt);
+//         // printf("data.........................................: \n");
+//         // printf("data size: %u\n", codeSize);
+//         // printf("virtual addr: %u\n", codeVirtualAddr);
+//         // printf("in file addr: %u\n", codeInFileAddrt);
+//         // printf("offset: %u\n", offset);
+//         // printf("physical page number: %u\n", physicalPageNum);
+//         // printf("page size: %u\n", PageSize);
+//     }
 
     //printf(">>>>>>>>>>>>>>>>>>>>>end of data <<<<<<<<<<<<<<<<<<<\n");
-    return 1;
+
+//}
+//////////////////////////////////////////////////////////////////////////
+bool
+AddrSpace::HandlePageFault(OpenFile *executable, int badvpn)
+{   
+    // backingStore = new BackingStore(currentThread->space);
+    int codePageNum, codeVirtAddr, codeFileOffset, codeSize;
+    int dataPageNum, dataVirtAddr, dataFileOffset,  dataSize;
+
+    int n;
+    n = memoryManager->AllocPage();
+    if(n==-1)
+        return false;
+    else{//allocate pyscial addr
+        pageTable[badvpn].physicalPage = n;
+    
+   if(!pageTable[badvpn].isStore){
+        codePageNum = (noffH.code.virtualAddr + noffH.code.size)/PageSize;
+        dataPageNum = (noffH.initData.virtualAddr + noffH.initData.size)/PageSize;
+        // load code
+        if(codePageNum >= badvpn && noffH.code.size > 0){   
+            if (noffH.code.virtualAddr/PageSize == badvpn){
+                codeVirtAddr = noffH.code.virtualAddr;                    
+                codeSize = PageSize - noffH.code.virtualAddr % PageSize;
+                codeFileOffset = noffH.code.inFileAddr;    
+                executable->ReadAt(&(machine->mainMemory[Translate(codeVirtAddr)]), codeSize, codeFileOffset);
+            }  
+            else if (codePageNum > badvpn){
+                codeFileOffset = noffH.code.inFileAddr + PageSize * badvpn - noffH.code.virtualAddr;
+                codeVirtAddr = PageSize * badvpn ;
+                codeSize = PageSize;
+                executable->ReadAt(&(machine->mainMemory[Translate(codeVirtAddr)]), codeSize, codeFileOffset);
+            }
+           else if (codePageNum == badvpn){
+                codeFileOffset = noffH.code.inFileAddr + PageSize * badvpn - noffH.code.virtualAddr;
+                codeVirtAddr = PageSize * badvpn ;
+                codeSize = (noffH.code.virtualAddr + noffH.code.size) % PageSize;
+                executable->ReadAt(&(machine->mainMemory[Translate(codeVirtAddr)]), codeSize, codeFileOffset);
+                bzero(&(machine->mainMemory[pageTable[badvpn].physicalPage*PageSize + codeSize]), sizeof(PageSize-codeSize));
+            }
+        }
+        // load data
+        if((dataPageNum >= badvpn) && (badvpn >= codePageNum) && (noffH.initData.size > 0) ){
+
+            if (noffH.initData.virtualAddr/PageSize == badvpn){
+                dataVirtAddr = noffH.initData.virtualAddr;                    
+                dataSize = PageSize - noffH.initData.virtualAddr % PageSize;
+                dataFileOffset = noffH.initData.inFileAddr;    
+                executable->ReadAt(&(machine->mainMemory[Translate(dataVirtAddr)]), dataSize, dataFileOffset);
+            }
+                
+            else if (dataPageNum > badvpn){
+                dataFileOffset = noffH.initData.inFileAddr + PageSize * badvpn - noffH.initData.virtualAddr;
+                dataVirtAddr = PageSize * badvpn ;
+                dataSize = PageSize;
+                executable->ReadAt(&(machine->mainMemory[Translate(dataVirtAddr)]), dataSize, dataFileOffset);
+            }
+           else if (dataPageNum == badvpn){
+                dataFileOffset = noffH.initData.inFileAddr + PageSize * badvpn - noffH.initData.virtualAddr;
+                dataVirtAddr = PageSize * badvpn ;
+                dataSize = (noffH.initData.virtualAddr + noffH.initData.size) % PageSize;
+                executable->ReadAt(&(machine->mainMemory[Translate(dataVirtAddr)]), dataSize, dataFileOffset);
+                bzero(&(machine->mainMemory[pageTable[badvpn].physicalPage*PageSize + dataSize]), sizeof(PageSize-dataSize));
+            }
+        }
+        if (dataPageNum < badvpn)
+            bzero(&(machine->mainMemory[pageTable[badvpn].physicalPage*PageSize]), sizeof(PageSize));
+            
+    }
+    else 
+        backingStore->PageIn(&pageTable[badvpn]);   
+    }
+     return true; 
+}
+  
+/////////////////////////////////////////////////////////////////////////////////
+
+void AddrSpace::setBit(int vpn){
+    pageTable[vpn].valid = TRUE;
+}
+
+
+void
+AddrSpace::Evict(){
+//printf("Evict has been called\n"); 
+int i=0;
+while(!pageTable[i].valid)
+{
+  i++;
+}
+    pageTable[i].valid = FALSE;
+    TranslationEntry *pte;
+    pte = &pageTable[i];
+    if(pageTable[i].dirty)
+    {
+     // printf("PTE to Evict is :  %d\n",  pte);
+      backingStore->PageOut(pte);
+      pageTable[i].dirty = FALSE; 
+      pageTable[i].isStore = TRUE;   
+    }
+    memoryManager->FreePage(pageTable[i].physicalPage);
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////
+int AddrSpace::Translate(int addr){
+    int phypage = addr / PageSize;
+    int offset = addr % PageSize;
+    int phyaddr = pageTable[phypage].physicalPage * PageSize + offset;
+    return phyaddr;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+void AddrSpace::ReadIntoMem(OpenFile *exec, int addr, int size, int infile){
+    unsigned int phyaddr;
+    while (size>PageSize) {
+        Translate(addr);
+       // DEBUG('c',"Physical addr = 0x%x\n",phyaddr);
+        exec->ReadAt(&(machine->mainMemory[phyaddr]),PageSize, infile);
+        size-=PageSize;        
+        addr+=PageSize;
+        infile+=PageSize;
+        }
+        if(size) {
+            Translate(addr);
+           // DEBUG('c',"Physical addr = 0x%x\n",phyaddr);
+            exec->ReadAt(&(machine->mainMemory[phyaddr]), size, infile);
+        }              
+}
+
+int AddrSpace::getPteIndex(TranslationEntry *pte){
+   // printf("numPages is :  %d\n", numPages);
+    for (unsigned int i = 0;i < numPages; i++) {
+        if(pte == &pageTable[i])
+            return i;
+    }
+    return -1;
 }
 
 //----------------------------------------------------------------------
@@ -202,11 +346,15 @@ int AddrSpace::Initialize(OpenFile *executable){
 
 AddrSpace::~AddrSpace()
 {   
+    // fileSystem->Remove(swap_name);
     for (unsigned int i = 0; i < numPages; i ++) 
         memoryManager->FreePage(pageTable[i].physicalPage);
 
     if(pageTable != NULL) 
         delete [] pageTable;
+
+    delete executableFile;
+    delete backingStore;
 }   
 
 //----------------------------------------------------------------------
@@ -265,3 +413,64 @@ void AddrSpace::RestoreState()
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
 }
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////
+//                              BackingStore class  implementatoin ///////////////
+
+BackingStore::BackingStore(AddrSpace *as){   
+    int pn;
+    this->space = as;
+    int pid = currentThread->spaceID;
+    BSFile = new FileSystem(true);
+    pn = space->getNumPages();
+    sprintf (fileName, "%d", pid);
+    BSFile->Create(fileName,pn*PageSize);
+    swap = BSFile->Open(fileName);
+}
+BackingStore::~BackingStore(){
+    delete BSFile;
+    delete space;
+    delete swap;
+}
+
+
+void
+BackingStore::PageOut(TranslationEntry *pte){
+   // printf("pageout has been called\n"); 
+    stats->incrNumPageOuts(); 
+    int pagenum;
+    int phys_addr;
+    
+    pagenum = space->getPteIndex(pte);
+   // printf("pageout has been called %d\n", stats->numPageOuts); 
+    phys_addr = space->Translate(pagenum*PageSize);
+    swap->WriteAt(&machine->mainMemory[phys_addr], PageSize, pagenum*PageSize);
+}
+
+
+void
+BackingStore::PageIn(TranslationEntry *pte){
+    // printf("pagein has been called\n"); 
+     stats->incrNumPageIns();
+     int pagenum;
+     int phys_addr;
+     pagenum = space->getPteIndex(pte);
+     phys_addr = space->Translate(pagenum*PageSize);
+     swap->ReadAt(&machine->mainMemory[phys_addr], PageSize, pagenum*PageSize);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

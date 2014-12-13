@@ -56,12 +56,13 @@ void CheckEndian()
 Machine::Machine(bool debug)
 {
     int i;
-
     for (i = 0; i < NumTotalRegs; i++)
         registers[i] = 0;
     mainMemory = new char[MemorySize];
     for (i = 0; i < MemorySize; i++)
         mainMemory[i] = 0;
+
+
 #ifdef USE_TLB
     tlb = new TranslationEntry[TLBSize];
     for (i = 0; i < TLBSize; i++)

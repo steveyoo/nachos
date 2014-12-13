@@ -40,6 +40,7 @@ public:
     // page is referenced or modified.
     bool dirty;         // This bit is set by the hardware every time the
     // page is modified.
+    bool isStore; // is this page has backup Store.
 };
 
 #endif

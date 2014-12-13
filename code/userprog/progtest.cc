@@ -1,4 +1,5 @@
 
+
 // progtest.cc
 //	Test routines for demonstrating that Nachos can load
 //	a user program and execute it.
@@ -43,7 +44,6 @@ StartProcess(char *filename)
         printf("Unable to open file %s\n", filename);
         //parenet process starts here, if we cannot find the file
         //just stop the process
-        ASSERT(false);
         return;
     }
     space = new AddrSpace();
@@ -54,7 +54,7 @@ StartProcess(char *filename)
     } else {
         ASSERT(false);
     }
-    delete executable;		// close file
+    // delete executable;		// close file
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register

@@ -22,7 +22,25 @@ Statistics::Statistics()
     numDiskReads = numDiskWrites = 0;
     numConsoleCharsRead = numConsoleCharsWritten = 0;
     numPageFaults = numPacketsSent = numPacketsRecvd = 0;
+    numPageOuts = 0 ;
+    numPageIns = 0;
 }
+
+///////////////////////////////////////////////////////////////////////
+////////////  counters ///////////////////////////////////////////////
+
+    void Statistics::incrNumPageFaults(){
+          numPageFaults++;
+    }
+    void Statistics::incrNumPageOuts(){
+        numPageOuts++;
+    }
+    void Statistics::incrNumPageIns(){
+        numPageIns++;
+    }
+
+
+
 
 //----------------------------------------------------------------------
 // Statistics::Print
@@ -41,4 +59,7 @@ Statistics::Print()
     printf("Paging: faults %d\n", numPageFaults);
     printf("Network I/O: packets received %d, sent %d\n", numPacketsRecvd,
            numPacketsSent);
+
+    printf("Total numPageOuts for this app is %d\n", numPageOuts);
+    printf("Total numPageIns for this app is %d\n", numPageIns);
 }

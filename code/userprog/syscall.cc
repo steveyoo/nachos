@@ -58,6 +58,8 @@ void userExit(){
 		 delete currentThread->space;
          tableManager->ReleaseAll();
          currentThread->Yield();
+         int value = machine->ReadRegister(4);
+         printf("Exit value is %d\n", value);
          interrupt->Halt();    
 	}
 	 // printf("exiting the process \n");

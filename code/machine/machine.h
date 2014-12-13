@@ -32,7 +32,7 @@
 // the disk sector size, for
 // simplicity
 
-#define NumPhysPages  128
+#define NumPhysPages  4
 #define MemorySize 	(NumPhysPages * PageSize)
 #define TLBSize		4		// if there is a TLB, make it small
 
@@ -90,6 +90,7 @@ public:
     int extra;       // Immediate or target or shamt field or offset.
     // Immediates are sign-extended.
 };
+
 
 // The following class defines the simulated host workstation hardware, as
 // seen by user programs -- the CPU registers, main memory, etc.

@@ -58,7 +58,7 @@ void* Table::Get(int index) {
 void Table::Release(int index) {
 	tableLock->Acquire();
 	if(index > 0 && index < tableSize) {
-		table[(index - 1)];
+		table[(index - 1)] = NULL;
 		tableSize++;
 	}
 	else  { // leave like this now, may need ASSERT(FALSE)
