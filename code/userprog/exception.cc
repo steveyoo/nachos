@@ -116,14 +116,14 @@ ExceptionHandler(ExceptionType which)
                         break;
                     }
                     //Try to read on file id other than serial console input.
-                    // if(id != ConsoleInput) {
-                    //     printf("Not ConsoleInput.\n");
-                    //     machine->WriteRegister(2, -1);
-                    //     machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
-                    //     machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
-                    //     machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
-                    //     break;
-                    // }
+                    if(id != ConsoleInput) {
+                        printf("Not ConsoleInput.\n");
+                        machine->WriteRegister(2, -1);
+                        machine->WriteRegister(PrevPCReg, machine->ReadRegister(PCReg));
+                        machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+                        machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 8); 
+                        break;
+                    }
                     //Try to read with a negative size.
                     if(size < 0) {
                         printf("Argument size cannot be < 0.\n");
@@ -211,13 +211,13 @@ ExceptionHandler(ExceptionType which)
         badVaddr = machine->ReadRegister(39);
         vp = badVaddr/PageSize;
 
-          if(space->HandlePageFault(space->executableFile, vp))
-                space->setBit(vp); 
-          else{
-                space->Evict();
-                if(space->HandlePageFault(space->executableFile, vp))
-                  space->setBit(vp);   
-          }      //  HandlePageFault();
+        if(space->HandlePageFault(space->executableFile, vp))
+            space->setBit(vp); 
+        else {
+            space->Evict();
+            if(space->HandlePageFault(space->executableFile, vp))
+                space->setBit(vp);   
+        }      //  HandlePageFault();
     }
     else if (which == ReadOnlyException) {
         printf("Unexpected user mode exception :ReadOnlyException%d %d\n", which, type);

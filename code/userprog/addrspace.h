@@ -16,6 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "memorymanager.h"
+#include "list.h"
 
 
 #define UserStackSize 1024 	// increase this as necessary!
@@ -68,7 +69,6 @@ class BackingStore {
 public:
     /* Create a backing store file for an AddrSpace */
     BackingStore(AddrSpace *as);
-    ~BackingStore();
 /* Write the virtual page referenced   by pte to the backing st
 ore */
 /* Example invocation: PageOut(&machine->pageTable[virtualPage]) or */
